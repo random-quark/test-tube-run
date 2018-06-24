@@ -23,7 +23,7 @@ int ledsFired[3] = {false,false,false};
 
 bool DEBUG_MODE = false;
 
-int TOTAL_RUN_TIME = 25000; // 15000
+int TOTAL_RUN_TIME = 20000; // 15000
 
 int LDR_PIN = A0;
 int LEFT_SERVO_PIN = 10;
@@ -78,11 +78,7 @@ void updateLed() {
     if (millis() - lastLedUpdate < LED_UPDATE_TIME) return;
     if (!marbleRunStarted) return;
 
-    Serial.println(millis() - lastLedUpdate);
-
     lastLedUpdate = millis();
-
-    Serial.println("led change time");
 
     FastLED.clear();
 
@@ -133,8 +129,10 @@ bool atStage(int time) {
 
 void checkLdr() {
   int ldrValue = analogRead(LDR_PIN);
+  Serial.println(ldrValue);
   if (ldrValue < LDR_THRESHOLD)
   {
+    Serial.println("Run started by LDR");
     startRun();
   }
 }
@@ -178,7 +176,7 @@ void fireServoSequences() {
 //       int servo2UpPos = 60;
        int servo2DownPos = 180;
 
-       int servo2UpPos = 80;
+       int servo2UpPos = 70;
        servo2AlreadyMoved = true;
         for (int i = servo2DownPos; i >= servo2UpPos; i--) {
           leftServo.write(i);
@@ -205,6 +203,9 @@ void fireServoSequences() {
 }
 
 void loop() {
+  int ldrValue = analogRead(LDR_PIN);
+  Serial.println(ldrValue);
+  
   if (marbleRunStarted) {
     fireLedSequences();
     updateLed();
