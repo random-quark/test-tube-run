@@ -31,6 +31,7 @@ int LDR_THRESHOLD = 800;
 int STARTING_LED = 4;
 int LED_UPDATE_TIME = 150;
 int LED_BRIGHTNESS = 30;
+int LED_RANGE = 2; // do not put too high to avoid blowing leds
 
 bool marbleRunStarted = false;
 long marbleRunStartTime = 0;
@@ -42,7 +43,7 @@ bool reverseLeds = false;
 int lowestLdrValue = 1012;
 int displayedLed = STARTING_LED;
 
-int lastLedUpdate = 0;
+long lastLedUpdate = 0;
 int stopAtLed = 0;
 
 // right servo. zero = 5;
@@ -56,31 +57,49 @@ void setup() {
   rightServo.write(5);
   leftServo.write(180);
   resetRun();
-//
+
 //  Serial.println("start run from setup");
 //  startRun();
+}
+
+void setLedColors() {
+  for (int i = displayedLed - LED_RANGE; i <= displayedLed + LED_RANGE; i++) {
+    if (reverseLeds && i < stopAtLed) continue;
+    if (!reverseLeds && i > stopAtLed) continue;
+    leds[i] = CRGB::Red;
+  }
 }
 
 void updateLed() {    
     if (millis() - lastLedUpdate < LED_UPDATE_TIME) return;
     if (!marbleRunStarted) return;
 
-    if (displayedLed < stopAtLed && !reverseLeds) {
-      displayedLed++;
-    }
-    if (displayedLed > stopAtLed && reverseLeds) {
-      displayedLed--;
-    }
-
-    FastLED.clear();
-    leds[displayedLed] = CRGB::Red;
-    FastLED.show();
+    Serial.println(millis() - lastLedUpdate);
 
     lastLedUpdate = millis();
+
+    Serial.println("led change time");
+
+    FastLED.clear();
+
+    if (displayedLed >= stopAtLed && reverseLeds) {
+      displayedLed--;
+      setLedColors();
+    }
+    if (displayedLed <= stopAtLed && !reverseLeds) {
+      displayedLed++;
+      setLedColors();
+    }
+
+    FastLED.show();
 }
 
 void startLedSequence(int startingLed, int ledsInSequence, bool _reverseLeds) {
-  if (_reverseLeds) reverseLeds = true;
+  if (_reverseLeds) {
+    reverseLeds = true;
+  } else {
+    reverseLeds = false;
+  }
   displayedLed = startingLed;
   if (reverseLeds) {
     stopAtLed = startingLed - ledsInSequence; 
@@ -99,6 +118,7 @@ void resetRun() {
   for (int i=0; i<3; i++) {
     ledsFired[i] = false;
   }
+  FastLED.clear();
 }
 
 bool atStage(int time) {
@@ -130,7 +150,7 @@ void fireLedSequences() {
       startLedSequence(60, 30, false);
       ledsFired[1] = true;
     }
-    if (atStage(13000) && !ledsFired[2]) {
+    if (atStage(12200) && !ledsFired[2]) {
       startLedSequence(30, 30, true);
       ledsFired[2] = true;
     }  
@@ -139,13 +159,11 @@ void fireLedSequences() {
 void fireServoSequences() {
     if (atStage(5000)  && !servo1AlreadyMoved && marbleRunStarted)
     {
+//      int servo1UpPos = 120;
+      int servo1UpPos = 90;
+      int servo1DownPos = 5;
       servo1AlreadyMoved = true;
-      for (int i = 5; i <= 120; i++) {
-        rightServo.write(i);
-        delay(20);
-      }
-      delay(2000);
-      for (int i = 120; i >= 5; i--) {
+      for (int i = servo1DownPos; i <= servo1UpPos; i++) {
         rightServo.write(i);
         delay(20);
       }
@@ -153,21 +171,28 @@ void fireServoSequences() {
     
      if (atStage(13000) && !servo2AlreadyMoved && marbleRunStarted)
       { 
+//       int servo2UpPos = 60;
+       int servo2DownPos = 180;
+
+       int servo2UpPos = 80;
        servo2AlreadyMoved = true;
-        for (int i = 180; i >= 60; i--) {
+        for (int i = servo2DownPos; i >= servo2UpPos; i--) {
           leftServo.write(i);
           delay(20);
         }
-      delay(2000);
-      for (int i = 60; i<= 180; i++) {
-        leftServo.write(i);
-        delay(20);
-      }
     }
     
     if (atStage(TOTAL_RUN_TIME))
     { 
       Serial.println("END RUN");
+      for (int i = 120; i >= 5; i--) {
+        rightServo.write(i);
+        delay(10);
+      }
+      for (int i = 60; i<= 180; i++) {
+        leftServo.write(i);
+        delay(10);
+      }
       resetRun();
     }  
 }
