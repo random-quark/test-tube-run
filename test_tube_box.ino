@@ -21,6 +21,8 @@ Servo rightServo;
 CRGB leds[NUM_LEDS];
 int ledsFired[3] = {false,false,false};
 
+bool DEBUG_MODE = false;
+
 int TOTAL_RUN_TIME = 25000; // 15000
 
 int LDR_PIN = A0;
@@ -58,19 +60,21 @@ void setup() {
   leftServo.write(180);
   resetRun();
 
-//  Serial.println("start run from setup");
-//  startRun();
+  if (DEBUG_MODE) {
+    Serial.println("start run from setup");
+    startRun();
+  }
 }
 
 void setLedColors() {
   for (int i = displayedLed - LED_RANGE; i <= displayedLed + LED_RANGE; i++) {
-    if (reverseLeds && i < stopAtLed) continue;
-    if (!reverseLeds && i > stopAtLed) continue;
+    if (reverseLeds && i <= stopAtLed) continue;
+    if (!reverseLeds && i >= stopAtLed) continue;
     leds[i] = CRGB::Red;
   }
 }
 
-void updateLed() {    
+void updateLed() {
     if (millis() - lastLedUpdate < LED_UPDATE_TIME) return;
     if (!marbleRunStarted) return;
 
@@ -194,13 +198,16 @@ void fireServoSequences() {
         delay(10);
       }
       resetRun();
+      if (DEBUG_MODE) {
+        startRun(); 
+      }
     }  
 }
 
 void loop() {
   if (marbleRunStarted) {
-    updateLed();
     fireLedSequences();
+    updateLed();
     fireServoSequences();   
   } else {
     checkLdr();
