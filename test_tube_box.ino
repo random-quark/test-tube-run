@@ -35,6 +35,11 @@ int LED_UPDATE_TIME = 150;
 int LED_BRIGHTNESS = 30;
 int LED_RANGE = 2; // do not put too high to avoid blowing leds
 
+int servo1UpPos = 110;
+int servo1DownPos = 20; // was 5
+int servo2DownPos = 165;
+int servo2UpPos = 70;
+
 bool marbleRunStarted = false;
 long marbleRunStartTime = 0;
 bool servo1AlreadyMoved = false;
@@ -48,16 +53,14 @@ int displayedLed = STARTING_LED;
 long lastLedUpdate = 0;
 int stopAtLed = 0;
 
-// right servo. zero = 5;
-
 void setup() {
   Serial.begin(9600);
   leftServo.attach(LEFT_SERVO_PIN);
   rightServo.attach(RIGHT_SERVO_PIN);
   FastLED.addLeds<LED_TYPE, LED_STRIP_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   FastLED.show();
-  rightServo.write(5);
-  leftServo.write(180);
+  rightServo.write(servo1DownPos);
+  leftServo.write(servo2DownPos);
   resetRun();
 
   if (DEBUG_MODE) {
@@ -161,9 +164,6 @@ void fireLedSequences() {
 void fireServoSequences() {
     if (atStage(5000)  && !servo1AlreadyMoved && marbleRunStarted)
     {
-//      int servo1UpPos = 120;
-      int servo1UpPos = 90;
-      int servo1DownPos = 5;
       servo1AlreadyMoved = true;
       for (int i = servo1DownPos; i <= servo1UpPos; i++) {
         rightServo.write(i);
@@ -173,10 +173,6 @@ void fireServoSequences() {
     
      if (atStage(13000) && !servo2AlreadyMoved && marbleRunStarted)
       { 
-//       int servo2UpPos = 60;
-       int servo2DownPos = 180;
-
-       int servo2UpPos = 70;
        servo2AlreadyMoved = true;
         for (int i = servo2DownPos; i >= servo2UpPos; i--) {
           leftServo.write(i);
@@ -187,11 +183,11 @@ void fireServoSequences() {
     if (atStage(TOTAL_RUN_TIME))
     { 
       Serial.println("END RUN");
-      for (int i = 120; i >= 5; i--) {
+      for (int i = servo1UpPos; i >= servo1DownPos; i--) {
         rightServo.write(i);
         delay(10);
       }
-      for (int i = 60; i<= 180; i++) {
+      for (int i = servo2UpPos; i<= servo2DownPos; i++) {
         leftServo.write(i);
         delay(10);
       }
