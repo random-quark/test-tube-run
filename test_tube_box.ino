@@ -13,7 +13,6 @@ Servo rightServo;
 #define LED_STRIP_PIN     6
 #define LED_TYPE    WS2812B
 #define NUM_LEDS    100
-#define MARBLE_TIME_PER_LED 50
 #define BRIGHTNESS  64
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
@@ -138,7 +137,7 @@ void checkLdr() {
   Serial.println(delta);
   if (!marbleRunStarted && delta > LDR_DELTA_THRESHOLD)
   {
-    Serial.println("Run started by LDR with delta val \/");
+    Serial.println("Run started by LDR with delta val");
     Serial.println(delta);
     startRun();
   }
