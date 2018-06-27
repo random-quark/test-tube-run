@@ -28,7 +28,7 @@ int TOTAL_RUN_TIME = 20000; // 15000
 int LDR_PIN = A0;
 int LEFT_SERVO_PIN = 10;
 int RIGHT_SERVO_PIN = 9;
-int LDR_THRESHOLD = 800;
+int LDR_DELTA_THRESHOLD = 50;
 
 int STARTING_LED = 4;
 int LED_UPDATE_TIME = 150;
@@ -52,6 +52,8 @@ int displayedLed = STARTING_LED;
 
 long lastLedUpdate = 0;
 int stopAtLed = 0;
+
+int prevLdrValue = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -133,11 +135,14 @@ bool atStage(int time) {
 void checkLdr() {
   int ldrValue = analogRead(LDR_PIN);
   Serial.println(ldrValue);
-  if (ldrValue < LDR_THRESHOLD)
+  int delta = abs(prevLdrValue - ldrValue);
+  if (delta > LDR_DELTA_THRESHOLD)
   {
     Serial.println("Run started by LDR");
     startRun();
   }
+
+  prevLdrValue = ldrValue;
 }
 
 void startRun() {
