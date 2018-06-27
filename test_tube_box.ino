@@ -31,7 +31,7 @@ int RIGHT_SERVO_PIN = 9;
 int LDR_DELTA_THRESHOLD = 50;
 
 int STARTING_LED = 4;
-int LED_UPDATE_TIME = 150;
+int LED_UPDATE_TIME = 120;
 int LED_BRIGHTNESS = 30;
 int LED_RANGE = 2; // do not put too high to avoid blowing leds
 
@@ -134,11 +134,12 @@ bool atStage(int time) {
 
 void checkLdr() {
   int ldrValue = analogRead(LDR_PIN);
-  Serial.println(ldrValue);
   int delta = abs(prevLdrValue - ldrValue);
-  if (delta > LDR_DELTA_THRESHOLD)
+  Serial.println(delta);
+  if (!marbleRunStarted && delta > LDR_DELTA_THRESHOLD)
   {
-    Serial.println("Run started by LDR");
+    Serial.println("Run started by LDR with delta val \/");
+    Serial.println(delta);
     startRun();
   }
 
@@ -204,14 +205,10 @@ void fireServoSequences() {
 }
 
 void loop() {
-  int ldrValue = analogRead(LDR_PIN);
-  Serial.println(ldrValue);
-  
   if (marbleRunStarted) {
     fireLedSequences();
     updateLed();
     fireServoSequences();   
-  } else {
-    checkLdr();
   }
+  checkLdr();
 }
