@@ -30,7 +30,8 @@ int RIGHT_SERVO_PIN = 9;
 int LDR_DELTA_THRESHOLD = 50;
 
 int STARTING_LED = 4;
-int LED_UPDATE_TIME = 120;
+int DEFAULT_LED_UPDATE_TIME = 60;
+int ledUpdateTime = DEFAULT_LED_UPDATE_TIME;
 int LED_BRIGHTNESS = 30;
 int LED_RANGE = 2; // do not put too high to avoid blowing leds
 
@@ -79,7 +80,7 @@ void setLedColors() {
 }
 
 void updateLed() {
-    if (millis() - lastLedUpdate < LED_UPDATE_TIME) return;
+    if (millis() - lastLedUpdate < ledUpdateTime) return;
     if (!marbleRunStarted) return;
 
     lastLedUpdate = millis();
@@ -98,7 +99,8 @@ void updateLed() {
     FastLED.show();
 }
 
-void startLedSequence(int startingLed, int ledsInSequence, bool _reverseLeds) {
+void startLedSequence(int startingLed, int ledsInSequence, bool _reverseLeds, int _ledUpdateTime) {
+  ledUpdateTime = _ledUpdateTime;
   if (_reverseLeds) {
     reverseLeds = true;
   } else {
@@ -153,15 +155,15 @@ void startRun() {
 
 void fireLedSequences() {
     if (atStage(0) && !ledsFired[0]) {
-      startLedSequence(30, 30, false);
+      startLedSequence(30, 30, false, DEFAULT_LED_UPDATE_TIME);
       ledsFired[0] = true;
     }
     if (atStage(5000) && !ledsFired[1]) {
-      startLedSequence(60, 30, false);
+      startLedSequence(60, 30, false, DEFAULT_LED_UPDATE_TIME);
       ledsFired[1] = true;
     }
-    if (atStage(12200) && !ledsFired[2]) {
-      startLedSequence(30, 30, true);
+    if (atStage(13000) && !ledsFired[2]) {
+      startLedSequence(24, 24, true, DEFAULT_LED_UPDATE_TIME + 70);
       ledsFired[2] = true;
     }  
 }
