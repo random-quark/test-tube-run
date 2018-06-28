@@ -36,7 +36,7 @@ int LED_BRIGHTNESS = 30;
 int LED_RANGE = 2; // do not put too high to avoid blowing leds
 
 int servo1UpPos = 110;
-int servo1DownPos = 20; // was 5
+int servo1DownPos = 25; // was 5
 int servo2DownPos = 165;
 int servo2UpPos = 70;
 
