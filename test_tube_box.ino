@@ -159,7 +159,7 @@ void fireLedSequences() {
       ledsFired[0] = true;
     }
     if (atStage(5000) && !ledsFired[1]) {
-      startLedSequence(60, 30, false, DEFAULT_LED_UPDATE_TIME);
+      startLedSequence(60, 30, false, DEFAULT_LED_UPDATE_TIME + 90);
       ledsFired[1] = true;
     }
     if (atStage(13000) && !ledsFired[2]) {
